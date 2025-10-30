@@ -2,14 +2,15 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus, Minus } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const mockCartItems = [
   {
     id: 1,
     name: "Stylish Fashion Item 1",
     image: "/placeholder.svg",
-    price: 59.99,
+    price: 4999,
     quantity: 2,
     size: "M",
     color: "Black",
@@ -19,7 +20,7 @@ const mockCartItems = [
     id: 2,
     name: "Stylish Fashion Item 2",
     image: "/placeholder.svg",
-    price: 79.99,
+    price: 6499,
     quantity: 1,
     size: "L",
     color: "Navy",
@@ -32,7 +33,7 @@ const Cart = () => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shipping = 5.99;
+  const shipping = 499;
   const total = subtotal + shipping;
 
   return (
@@ -40,7 +41,14 @@ const Cart = () => {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+        <div className="flex items-center gap-4 mb-8">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+          </Button>
+          <h1 className="text-3xl font-bold">Shopping Cart</h1>
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
@@ -92,7 +100,7 @@ const Cart = () => {
                         </Button>
                       </div>
                       <p className="text-lg font-bold text-primary">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                       </p>
                     </div>
                   </div>
@@ -109,17 +117,17 @@ const Cart = () => {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                  <span className="font-semibold">₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="font-semibold">${shipping.toFixed(2)}</span>
+                  <span className="font-semibold">₹{shipping.toLocaleString('en-IN')}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg">
                   <span className="font-semibold">Total</span>
                   <span className="font-bold text-primary">
-                    ${total.toFixed(2)}
+                    ₹{total.toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>

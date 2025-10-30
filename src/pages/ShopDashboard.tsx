@@ -28,7 +28,7 @@ const stats = [
   },
   {
     title: "Revenue",
-    value: "$45,231",
+    value: "₹37,54,231",
     icon: DollarSign,
     trend: "+31%",
     color: "text-blue-600",
@@ -115,7 +115,7 @@ const ShopDashboard = () => {
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-semibold mb-1">$59.99</p>
+                  <p className="font-semibold mb-1">₹4,999</p>
                   <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
                     Pending
                   </span>

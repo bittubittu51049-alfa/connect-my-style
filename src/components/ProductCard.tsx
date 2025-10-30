@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -38,17 +38,6 @@ export const ProductCard = ({
               {discount}% OFF
             </Badge>
           )}
-          <Button
-            size="icon"
-            variant="secondary"
-            className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => {
-              e.preventDefault();
-              // Add to wishlist logic
-            }}
-          >
-            <Heart className="h-4 w-4" />
-          </Button>
         </div>
       </Link>
 
@@ -65,10 +54,10 @@ export const ProductCard = ({
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold text-primary">${price}</span>
+              <span className="text-lg font-bold text-primary">₹{price.toLocaleString('en-IN')}</span>
               {originalPrice && (
                 <span className="text-sm text-muted-foreground line-through">
-                  ${originalPrice}
+                  ₹{originalPrice.toLocaleString('en-IN')}
                 </span>
               )}
             </div>

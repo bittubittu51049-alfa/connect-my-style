@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingBag, Store, User, Search, Heart, ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingBag, Store, User, Search, ShoppingCart, Menu, X, Home, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,30 +46,28 @@ export const Navbar = () => {
           <div className="hidden md:flex items-center gap-6">
             {!isAdminRoute && !isShopRoute && (
               <>
-                <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
-                  Home
+                <Link to="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                  <Home className="h-4 w-4" />
+                  <span>Home</span>
                 </Link>
-                <Link to="/shops" className="text-sm font-medium hover:text-primary transition-colors">
-                  Shops
+                <Link to="/shops" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                  <Store className="h-4 w-4" />
+                  <span>Shops</span>
                 </Link>
-                <Link to="/orders" className="text-sm font-medium hover:text-primary transition-colors">
-                  Orders
+                <Link to="/orders" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                  <Package className="h-4 w-4" />
+                  <span>Orders</span>
                 </Link>
               </>
             )}
 
             <div className="flex items-center gap-2">
               {!isAdminRoute && !isShopRoute && (
-                <>
-                  <Button variant="ghost" size="icon">
-                    <Heart className="h-5 w-5" />
-                  </Button>
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link to="/cart">
-                      <ShoppingCart className="h-5 w-5" />
-                    </Link>
-                  </Button>
-                </>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link to="/cart">
+                    <ShoppingCart className="h-5 w-5" />
+                  </Link>
+                </Button>
               )}
 
               <DropdownMenu>
@@ -127,16 +125,20 @@ export const Navbar = () => {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Link to="/" className="text-sm font-medium hover:text-primary transition-colors p-2">
+              <Link to="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors p-2">
+                <Home className="h-4 w-4" />
                 Home
               </Link>
-              <Link to="/shops" className="text-sm font-medium hover:text-primary transition-colors p-2">
+              <Link to="/shops" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors p-2">
+                <Store className="h-4 w-4" />
                 Shops
               </Link>
-              <Link to="/orders" className="text-sm font-medium hover:text-primary transition-colors p-2">
+              <Link to="/orders" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors p-2">
+                <Package className="h-4 w-4" />
                 Orders
               </Link>
-              <Link to="/cart" className="text-sm font-medium hover:text-primary transition-colors p-2">
+              <Link to="/cart" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors p-2">
+                <ShoppingCart className="h-4 w-4" />
                 Cart
               </Link>
             </div>

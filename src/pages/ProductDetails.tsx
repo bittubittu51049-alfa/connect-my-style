@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Heart, ShoppingCart, Star, Store, Truck, Shield, RefreshCw } from "lucide-react";
+import { ShoppingCart, Star, Store, Truck, Shield, RefreshCw, ArrowLeft } from "lucide-react";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -21,6 +21,11 @@ const ProductDetails = () => {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
+        <Button variant="ghost" size="icon" className="mb-4" asChild>
+          <Link to="/">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        </Button>
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Product Images */}
           <div className="space-y-4">
@@ -71,9 +76,9 @@ const ProductDetails = () => {
             </div>
 
             <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-bold text-primary">$59.99</span>
+              <span className="text-4xl font-bold text-primary">₹4,999</span>
               <span className="text-xl text-muted-foreground line-through">
-                $89.99
+                ₹7,499
               </span>
               <Badge className="bg-primary text-primary-foreground">33% OFF</Badge>
             </div>
@@ -133,22 +138,17 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button size="lg" className="flex-1">
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Add to Cart
-              </Button>
-              <Button size="lg" variant="outline">
-                <Heart className="h-5 w-5" />
-              </Button>
-            </div>
+            <Button size="lg" className="w-full">
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              Add to Cart
+            </Button>
 
             <Separator />
 
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm">
                 <Truck className="h-5 w-5 text-primary" />
-                <span>Free delivery on orders over $50</span>
+                <span>Free delivery on orders over ₹4,000</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <RefreshCw className="h-5 w-5 text-primary" />

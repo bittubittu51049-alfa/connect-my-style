@@ -6,8 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 import Shops from "./pages/Shops";
+import ShopDetails from "./pages/ShopDetails";
 import ShopDashboard from "./pages/ShopDashboard";
+import ShopOrders from "./pages/ShopOrders";
+import ShopProducts from "./pages/ShopProducts";
+import ShopProductNew from "./pages/ShopProductNew";
+import ShopRevenue from "./pages/ShopRevenue";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -23,8 +29,14 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/orders" element={<Orders />} />
           <Route path="/shops" element={<Shops />} />
+          <Route path="/shop/:id" element={<ShopDetails />} />
           <Route path="/shop/dashboard" element={<ShopDashboard />} />
+          <Route path="/shop/orders" element={<ShopOrders />} />
+          <Route path="/shop/products" element={<ShopProducts />} />
+          <Route path="/shop/products/new" element={<ShopProductNew />} />
+          <Route path="/shop/revenue" element={<ShopRevenue />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

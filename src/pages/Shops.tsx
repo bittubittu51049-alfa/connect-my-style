@@ -1,7 +1,9 @@
 import { Navbar } from "@/components/Navbar";
 import { ShopCard } from "@/components/ShopCard";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const mockShops = Array.from({ length: 8 }, (_, i) => ({
   id: i + 1,
@@ -19,6 +21,11 @@ const Shops = () => {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
+        <Button variant="ghost" size="icon" className="mb-4" asChild>
+          <Link to="/">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        </Button>
         <div className="max-w-2xl mx-auto text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">
             Explore{" "}
