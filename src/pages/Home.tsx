@@ -52,25 +52,25 @@ const Home = () => {
           style={{ backgroundImage: `url(${heroImage})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-background/80" />
-        <div className="container relative mx-auto px-4 py-20 md:py-32">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <Badge variant="secondary" className="mb-4">
+        <div className="container relative mx-auto px-4 py-12 md:py-32">
+          <div className="max-w-3xl mx-auto text-center space-y-4 md:space-y-6">
+            <Badge variant="secondary" className="mb-2 md:mb-4 text-xs md:text-sm">
               Welcome to FashionConnect
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+            <h1 className="text-2xl md:text-6xl font-bold tracking-tight">
               Shop from Your{" "}
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Favorite Stores
               </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-sm md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Compare, Choose, and Shine! Discover unique fashion from multiple stores in one place.
             </p>
-            <div className="flex flex-wrap gap-3 justify-center pt-4">
-              <Button size="lg" className="shadow-lg">
+            <div className="flex flex-wrap gap-2 md:gap-3 justify-center pt-2 md:pt-4">
+              <Button size="sm" className="shadow-lg md:size-lg">
                 Start Shopping
               </Button>
-              <Button size="lg" variant="outline">
+              <Button size="sm" variant="outline" className="md:size-lg">
                 Explore Shops
               </Button>
             </div>
@@ -80,46 +80,35 @@ const Home = () => {
 
       {/* Category Navigation */}
       <div className="container mx-auto px-4">
-        <div className="border-b mb-8">
-          <div className="flex gap-4 overflow-x-auto py-4 scrollbar-hide">
+        <div className="border-b mb-4 md:mb-8">
+          <div className="flex gap-2 md:gap-4 overflow-x-auto py-2 md:py-4 scrollbar-hide">
             {categories.map((category) => (
               <button
                 key={category.name}
                 onClick={() => setSelectedCategory(category.name)}
-                className={`flex items-center gap-2 whitespace-nowrap px-6 py-3 rounded-full transition-all border ${
+                className={`flex items-center gap-1 md:gap-2 whitespace-nowrap px-3 py-1.5 md:px-6 md:py-3 rounded-full transition-all border text-xs md:text-sm ${
                   selectedCategory === category.name
                     ? "bg-primary text-primary-foreground shadow-[var(--shadow-soft)] border-primary"
                     : "hover:bg-muted border-border"
                 }`}
               >
-                <category.icon className="h-4 w-4" />
-                {category.name}
+                <category.icon className="h-3 w-3 md:h-4 md:w-4" />
+                <span className="hidden sm:inline">{category.name}</span>
               </button>
             ))}
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 relative">
-          {/* Floating Filter Button (Mobile/Tablet) */}
-          {!filtersOpen && (
-            <Button
-              onClick={() => setFiltersOpen(true)}
-              className="lg:hidden fixed right-4 bottom-24 z-40 rounded-full h-14 w-14 shadow-[var(--shadow-strong)]"
-              size="icon"
-            >
-              <SlidersHorizontal className="h-5 w-5" />
-            </Button>
-          )}
-
-          {/* Filters Sidebar - Sliding Panel */}
+          {/* Filters Sidebar - Right Side */}
           <div
             className={`
-              fixed lg:static inset-y-0 left-0 z-50 
+              fixed lg:static inset-y-0 right-0 z-50 
               lg:w-72 w-80 max-w-[85vw]
               bg-background lg:bg-transparent
               transform transition-transform duration-300 ease-out
-              ${filtersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-              overflow-y-auto
+              ${filtersOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+              overflow-y-auto lg:order-2
             `}
           >
             <Card className="lg:w-72 h-fit p-6 border-0 shadow-[var(--shadow-soft)] space-y-6 m-4 lg:m-0">
@@ -224,7 +213,17 @@ const Home = () => {
           )}
 
           {/* Products */}
-          <div className="flex-1">
+          <div className="flex-1 lg:order-1">
+            {/* Floating Filter Button (Mobile/Tablet) */}
+            {!filtersOpen && (
+              <Button
+                onClick={() => setFiltersOpen(true)}
+                className="lg:hidden fixed right-4 bottom-24 z-40 rounded-full h-14 w-14 shadow-[var(--shadow-strong)]"
+                size="icon"
+              >
+                <SlidersHorizontal className="h-5 w-5" />
+              </Button>
+            )}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div>
                 <h2 className="text-2xl font-bold mb-1">Trending Products</h2>

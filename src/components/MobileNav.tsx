@@ -4,6 +4,11 @@ import { cn } from "@/lib/utils";
 
 export const MobileNav = () => {
   const location = useLocation();
+  
+  // Only show for customer role (not shop or admin pages)
+  const isCustomerRole = !location.pathname.startsWith('/shop') && !location.pathname.startsWith('/admin');
+  
+  if (!isCustomerRole) return null;
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
