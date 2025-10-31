@@ -5,16 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Star, Store, Truck, Shield, RefreshCw, ArrowLeft } from "lucide-react";
+import { ShoppingCart, Star, Store, Truck, Shield, RefreshCw, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
   const colors = ["Black", "White", "Navy", "Gray", "Red"];
+  const images = ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg", "/placeholder.svg"];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -27,24 +37,52 @@ const ProductDetails = () => {
           </Link>
         </Button>
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Images */}
+          {/* Product Images - Flipkart Style Slider */}
           <div className="space-y-4">
-            <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+            <div className="aspect-square rounded-lg overflow-hidden bg-muted relative group">
               <img
-                src="/placeholder.svg"
+                src={images[currentImageIndex]}
                 alt="Product"
                 className="w-full h-full object-cover"
               />
+              
+              {/* Navigation Arrows */}
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={prevImage}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={nextImage}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+
+              {/* Image Counter */}
+              <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                {currentImageIndex + 1} / {images.length}
+              </div>
             </div>
+
+            {/* Thumbnails */}
             <div className="grid grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
+              {images.map((img, i) => (
                 <div
                   key={i}
-                  className="aspect-square rounded-lg overflow-hidden bg-muted border-2 border-transparent hover:border-primary cursor-pointer transition-colors"
+                  onClick={() => setCurrentImageIndex(i)}
+                  className={`aspect-square rounded-lg overflow-hidden bg-muted border-2 cursor-pointer transition-all ${
+                    currentImageIndex === i ? 'border-primary' : 'border-transparent hover:border-primary/50'
+                  }`}
                 >
                   <img
-                    src="/placeholder.svg"
-                    alt={`Thumbnail ${i}`}
+                    src={img}
+                    alt={`Thumbnail ${i + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </div>

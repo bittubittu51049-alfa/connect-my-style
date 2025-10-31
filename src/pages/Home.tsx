@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter, SlidersHorizontal, ShoppingBag, Users, Baby, Watch, Sparkles, Tag } from "lucide-react";
+import { Filter, SlidersHorizontal, ShoppingBag, Users, Baby, Watch, Sparkles, Tag, X } from "lucide-react";
 import heroImage from "@/assets/hero-fashion.jpg";
 
 const categories = [
@@ -39,6 +39,7 @@ const mockProducts = Array.from({ length: 20 }, (_, i) => ({
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -98,89 +99,129 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <Card className="lg:w-72 h-fit p-6 border-0 shadow-[var(--shadow-soft)] space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SlidersHorizontal className="h-5 w-5 text-primary" />
-                <h3 className="font-bold text-lg">Filters</h3>
-              </div>
-              <Button variant="ghost" size="sm" className="text-xs">Clear All</Button>
-            </div>
+        <div className="flex flex-col lg:flex-row gap-8 relative">
+          {/* Floating Filter Button (Mobile/Tablet) */}
+          {!filtersOpen && (
+            <Button
+              onClick={() => setFiltersOpen(true)}
+              className="lg:hidden fixed right-4 bottom-24 z-40 rounded-full h-14 w-14 shadow-[var(--shadow-strong)]"
+              size="icon"
+            >
+              <SlidersHorizontal className="h-5 w-5" />
+            </Button>
+          )}
 
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <label className="text-sm font-semibold flex items-center gap-2">
-                  <span className="text-primary">₹</span>
-                  Price Range
-                </label>
+          {/* Filters Sidebar - Sliding Panel */}
+          <div
+            className={`
+              fixed lg:static inset-y-0 left-0 z-50 
+              lg:w-72 w-80 max-w-[85vw]
+              bg-background lg:bg-transparent
+              transform transition-transform duration-300 ease-out
+              ${filtersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+              overflow-y-auto
+            `}
+          >
+            <Card className="lg:w-72 h-fit p-6 border-0 shadow-[var(--shadow-soft)] space-y-6 m-4 lg:m-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="h-5 w-5 text-primary" />
+                  <h3 className="font-bold text-lg">Filters</h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" className="text-xs">Clear All</Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden h-8 w-8"
+                    onClick={() => setFiltersOpen(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-6">
                 <div className="space-y-3">
-                  <Slider
-                    defaultValue={[0]}
-                    max={10000}
-                    step={500}
-                    className="mb-2"
-                  />
-                  <div className="flex items-center justify-between gap-2">
-                    <Input placeholder="Min" className="h-9 text-xs" />
-                    <span className="text-muted-foreground">-</span>
-                    <Input placeholder="Max" className="h-9 text-xs" />
+                  <label className="text-sm font-semibold flex items-center gap-2">
+                    <span className="text-primary">₹</span>
+                    Price Range
+                  </label>
+                  <div className="space-y-3">
+                    <Slider
+                      defaultValue={[0]}
+                      max={10000}
+                      step={500}
+                      className="mb-2"
+                    />
+                    <div className="flex items-center justify-between gap-2">
+                      <Input placeholder="Min" className="h-9 text-xs" />
+                      <span className="text-muted-foreground">-</span>
+                      <Input placeholder="Max" className="h-9 text-xs" />
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>₹0</span>
+                      <span>₹10,000+</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>₹0</span>
-                    <span>₹10,000+</span>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold">Available Sizes</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
+                      <Button
+                        key={size}
+                        variant="outline"
+                        size="sm"
+                        className="h-10 hover:bg-primary hover:text-primary-foreground"
+                      >
+                        {size}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold">Customer Rating</label>
+                  <div className="space-y-2">
+                    {[5, 4, 3, 2, 1].map((rating) => (
+                      <button
+                        key={rating}
+                        className="flex items-center gap-2 text-sm hover:text-primary transition-colors w-full p-2 hover:bg-muted rounded-lg"
+                      >
+                        <span className="text-base">{"⭐".repeat(rating)}</span>
+                        <span className="text-muted-foreground">& above</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold">Discount</label>
+                  <div className="space-y-2">
+                    {["50% or more", "40% or more", "30% or more", "20% or more", "10% or more"].map((discount) => (
+                      <button
+                        key={discount}
+                        className="flex items-center gap-2 text-sm hover:text-primary transition-colors w-full p-2 hover:bg-muted rounded-lg text-left"
+                      >
+                        <Tag className="h-4 w-4 text-primary" />
+                        {discount}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
+            </Card>
+          </div>
 
-              <div className="space-y-3">
-                <label className="text-sm font-semibold">Available Sizes</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
-                    <Button
-                      key={size}
-                      variant="outline"
-                      size="sm"
-                      className="h-10 hover:bg-primary hover:text-primary-foreground"
-                    >
-                      {size}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-sm font-semibold">Customer Rating</label>
-                <div className="space-y-2">
-                  {[5, 4, 3, 2, 1].map((rating) => (
-                    <button
-                      key={rating}
-                      className="flex items-center gap-2 text-sm hover:text-primary transition-colors w-full p-2 hover:bg-muted rounded-lg"
-                    >
-                      <span className="text-base">{"⭐".repeat(rating)}</span>
-                      <span className="text-muted-foreground">& above</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-sm font-semibold">Discount</label>
-                <div className="space-y-2">
-                  {["50% or more", "40% or more", "30% or more", "20% or more", "10% or more"].map((discount) => (
-                    <button
-                      key={discount}
-                      className="flex items-center gap-2 text-sm hover:text-primary transition-colors w-full p-2 hover:bg-muted rounded-lg text-left"
-                    >
-                      <Tag className="h-4 w-4 text-primary" />
-                      {discount}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Card>
+          {/* Overlay */}
+          {filtersOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              onClick={() => setFiltersOpen(false)}
+            />
+          )}
 
           {/* Products */}
           <div className="flex-1">

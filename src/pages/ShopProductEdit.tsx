@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Upload } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
-const ShopProductNew = () => {
+const ShopProductEdit = () => {
+  const { id } = useParams();
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -21,8 +23,8 @@ const ShopProductNew = () => {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Add New Product</h1>
-            <p className="text-muted-foreground">Fill in the product details</p>
+            <h1 className="text-3xl font-bold">Edit Product</h1>
+            <p className="text-muted-foreground">Update product details</p>
           </div>
         </div>
 
@@ -43,13 +45,13 @@ const ShopProductNew = () => {
 
             <div className="space-y-2">
               <Label htmlFor="name">Product Name</Label>
-              <Input id="name" placeholder="Enter product name" />
+              <Input id="name" placeholder="Enter product name" defaultValue="Fashion Item 1" />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select>
+                <Select defaultValue="men">
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -64,19 +66,19 @@ const ShopProductNew = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="stock">Stock Available</Label>
-                <Input id="stock" type="number" placeholder="0" />
+                <Input id="stock" type="number" placeholder="0" defaultValue="50" />
               </div>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="original-price">Original Price (₹)</Label>
-                <Input id="original-price" type="number" placeholder="0" />
+                <Input id="original-price" type="number" placeholder="0" defaultValue="5999" />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="discount-price">Discount Price (₹)</Label>
-                <Input id="discount-price" type="number" placeholder="0" />
+                <Input id="discount-price" type="number" placeholder="0" defaultValue="2999" />
               </div>
             </div>
 
@@ -86,6 +88,7 @@ const ShopProductNew = () => {
                 id="description"
                 placeholder="Enter product description"
                 rows={4}
+                defaultValue="Premium quality fashion item"
               />
             </div>
 
@@ -93,12 +96,12 @@ const ShopProductNew = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="brand">Brand</Label>
-                <Input id="brand" placeholder="Enter brand name" />
+                <Input id="brand" placeholder="Enter brand name" defaultValue="FashionBrand" />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="fabric">Fabric Type</Label>
-                <Select>
+                <Select defaultValue="cotton">
                   <SelectTrigger>
                     <SelectValue placeholder="Select fabric" />
                   </SelectTrigger>
@@ -118,7 +121,7 @@ const ShopProductNew = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="pattern">Pattern</Label>
-                <Select>
+                <Select defaultValue="solid">
                   <SelectTrigger>
                     <SelectValue placeholder="Select pattern" />
                   </SelectTrigger>
@@ -134,7 +137,7 @@ const ShopProductNew = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="fit">Fit Type</Label>
-                <Select>
+                <Select defaultValue="regular">
                   <SelectTrigger>
                     <SelectValue placeholder="Select fit" />
                   </SelectTrigger>
@@ -154,6 +157,7 @@ const ShopProductNew = () => {
                 id="care"
                 placeholder="e.g., Machine wash cold, Do not bleach, Tumble dry low"
                 rows={2}
+                defaultValue="Machine wash cold, Do not bleach"
               />
             </div>
 
@@ -193,7 +197,7 @@ const ShopProductNew = () => {
 
             <div className="flex gap-4 pt-4">
               <Button type="submit" size="lg" className="flex-1">
-                Add Product
+                Update Product
               </Button>
               <Button type="button" variant="outline" size="lg" asChild>
                 <Link to="/shop/products">Cancel</Link>
@@ -206,4 +210,4 @@ const ShopProductNew = () => {
   );
 };
 
-export default ShopProductNew;
+export default ShopProductEdit;

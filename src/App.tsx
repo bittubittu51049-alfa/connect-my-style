@@ -13,8 +13,12 @@ import ShopDashboard from "./pages/ShopDashboard";
 import ShopOrders from "./pages/ShopOrders";
 import ShopProducts from "./pages/ShopProducts";
 import ShopProductNew from "./pages/ShopProductNew";
+import ShopProductEdit from "./pages/ShopProductEdit";
 import ShopRevenue from "./pages/ShopRevenue";
 import AdminDashboard from "./pages/AdminDashboard";
+import CheckoutAddress from "./pages/CheckoutAddress";
+import CheckoutSummary from "./pages/CheckoutSummary";
+import CheckoutPayment from "./pages/CheckoutPayment";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,7 +40,11 @@ const App = () => (
           <Route path="/shop/orders" element={<ShopOrders />} />
           <Route path="/shop/products" element={<ShopProducts />} />
           <Route path="/shop/products/new" element={<ShopProductNew />} />
+          <Route path="/shop/products/:id/edit" element={<ShopProductEdit />} />
           <Route path="/shop/revenue" element={<ShopRevenue />} />
+          <Route path="/checkout/address" element={<CheckoutAddress />} />
+          <Route path="/checkout/summary" element={<CheckoutSummary />} />
+          <Route path="/checkout/payment" element={<CheckoutPayment />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

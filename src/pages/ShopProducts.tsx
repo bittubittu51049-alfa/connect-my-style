@@ -71,9 +71,11 @@ const ShopProducts = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
+                  <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Link to={`/shop/products/${product.id}/edit`}>
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Link>
                   </Button>
                   <Button variant="outline" size="sm" className="text-destructive">
                     <Trash2 className="h-4 w-4" />
