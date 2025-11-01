@@ -19,6 +19,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CheckoutAddress from "./pages/CheckoutAddress";
 import CheckoutSummary from "./pages/CheckoutSummary";
 import CheckoutPayment from "./pages/CheckoutPayment";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/shops" element={<Shops />} />
           <Route path="/shop/:id" element={<ShopDetails />} />
           <Route path="/shop/dashboard" element={<ShopDashboard />} />
