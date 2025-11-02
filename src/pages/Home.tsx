@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase";
 import { Navbar } from "@/components/Navbar";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -22,16 +23,16 @@ const categories = [
   { name: "Offers", icon: Tag },
 ];
 
-const mockProducts = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  name: `Fashion Item ${i + 1}`,
-  image: "/placeholder.svg",
-  price: Math.floor(Math.random() * 5000) + 1500,
-  originalPrice: Math.floor(Math.random() * 8000) + 3000,
-  shop: `Fashion Store ${(i % 3) + 1}`,
-  shopId: (i % 3) + 1,
-  discount: Math.floor(Math.random() * 50) + 10,
-}));
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  originalPrice: number;
+  shop: string;
+  shopId: string;
+  discount: number;
+}
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -40,6 +41,52 @@ const Home = () => {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(10000);
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          id,
+          name,
+          price,
+          discount,
+          image_url,
+          shops (
+            id,
+            name
+          )
+        `)
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      const formattedProducts: Product[] = (data || []).map((product: any) => ({
+        id: product.id,
+        name: product.name,
+        image: product.image_url || "/placeholder.svg",
+        price: product.price,
+        originalPrice: product.discount 
+          ? Math.round(product.price / (1 - product.discount / 100))
+          : product.price,
+        shop: product.shops?.name || "Unknown Shop",
+        shopId: product.shops?.id || "",
+        discount: product.discount || 0,
+      }));
+
+      setProducts(formattedProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -315,17 +362,24 @@ const Home = () => {
         </Sheet>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {mockProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <Button variant="outline" size="lg">
-            Load More Products
-          </Button>
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading products...</p>
+            </div>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No products available yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {products.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,22 +1,37 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ShoppingCart, Search, Menu, X, Home, Store, Package } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ShoppingCart, Search, Menu, X, Home, Store, Package, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MobileNav } from "./MobileNav";
+import { useAuth } from "@/integrations/supabase";
+import { toast } from "sonner";
 
 export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, userRole, signOut } = useAuth();
   
   // Check if current route is customer role (not shop or admin)
   const isCustomerRole = !location.pathname.startsWith('/shop') && !location.pathname.startsWith('/admin');
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast.error("Failed to sign out");
+    } else {
+      toast.success("Signed out successfully");
+      navigate("/auth");
+    }
+  };
 
   return (
     <>
@@ -65,19 +80,37 @@ export const Navbar = () => {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      Switch Role
+                    <Button variant="ghost" size="icon">
+                      <User className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem asChild>
-                      <Link to="/">Customer</Link>
+                      <Link to="/profile" className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/shop/dashboard">Shop Owner</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/dashboard">Admin</Link>
+                    <DropdownMenuSeparator />
+                    {userRole === "shop_owner" && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/shop/dashboard" className="cursor-pointer">
+                          <Store className="mr-2 h-4 w-4" />
+                          Shop Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {userRole === "admin" && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/dashboard" className="cursor-pointer">
+                          Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

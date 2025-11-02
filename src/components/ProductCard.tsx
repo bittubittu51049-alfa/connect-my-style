@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 interface ProductCardProps {
-  id: number;
+  id: number | string;
   name: string;
   image: string;
   price: number;

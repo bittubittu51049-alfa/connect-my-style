@@ -1,21 +1,56 @@
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { ShopCard } from "@/components/ShopCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase";
 
-const mockShops = Array.from({ length: 8 }, (_, i) => ({
-  id: i + 1,
-  name: `Fashion Store ${i + 1}`,
-  logo: "/placeholder.svg",
-  rating: 4.5 + Math.random() * 0.5,
-  followers: Math.floor(Math.random() * 10000) + 1000,
-  products: Math.floor(Math.random() * 500) + 50,
-  description: "Premium fashion collection featuring the latest trends and timeless classics.",
-}));
+interface Shop {
+  id: number | string;
+  name: string;
+  logo: string;
+  rating: number;
+  followers: number;
+  products: number;
+  description: string;
+}
 
 const Shops = () => {
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchShops();
+  }, []);
+
+  const fetchShops = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('shops')
+        .select('*');
+
+      if (error) throw error;
+
+      const formattedShops: Shop[] = (data || []).map((shop: any) => ({
+        id: shop.id,
+        name: shop.name,
+        logo: shop.logo_url || "/placeholder.svg",
+        rating: shop.rating || 0,
+        followers: 0, // We'll need to add a followers table later
+        products: 0, // We'll count products separately if needed
+        description: shop.description || "",
+      }));
+
+      setShops(formattedShops);
+    } catch (error) {
+      console.error("Error fetching shops:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -47,11 +82,24 @@ const Shops = () => {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockShops.map((shop) => (
-            <ShopCard key={shop.id} {...shop} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading shops...</p>
+            </div>
+          </div>
+        ) : shops.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No shops available yet.</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {shops.map((shop) => (
+              <ShopCard key={shop.id} {...shop} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
