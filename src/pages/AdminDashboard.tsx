@@ -1,40 +1,137 @@
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Store, Users, MessageSquare, CheckCircle, XCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
-const stats = [
-  { title: "Total Shops", value: "245", icon: Store, color: "text-primary" },
-  { title: "Active Customers", value: "12,456", icon: Users, color: "text-accent" },
-  { title: "Feedback Received", value: "89", icon: MessageSquare, color: "text-blue-600" },
-];
-
-const pendingShops = [
-  {
-    id: 1,
-    shopName: "Trendy Fashion Hub",
-    ownerName: "John Smith",
-    mobile: "+1 234 567 8900",
-    email: "john@trendyhub.com",
-  },
-  {
-    id: 2,
-    shopName: "Elegant Styles",
-    ownerName: "Sarah Johnson",
-    mobile: "+1 234 567 8901",
-    email: "sarah@elegantstyles.com",
-  },
-  {
-    id: 3,
-    shopName: "Modern Wardrobe",
-    ownerName: "Mike Davis",
-    mobile: "+1 234 567 8902",
-    email: "mike@modernwardrobe.com",
-  },
-];
+interface PendingShop {
+  id: string;
+  name: string;
+  owner_id: string;
+  phone: string | null;
+  email: string | null;
+  description: string | null;
+  created_at: string;
+  profiles: {
+    full_name: string;
+    email: string;
+    phone: string | null;
+  };
+}
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState({
+    shops: 0,
+    customers: 0,
+    feedbacks: 0,
+  });
+  const [pendingShops, setPendingShops] = useState<PendingShop[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch stats
+      const { count: shopsCount } = await supabase
+        .from('shops')
+        .select('*', { count: 'exact', head: true })
+        .eq('approved', true);
+
+      const { count: customersCount } = await supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'customer');
+
+      // Fetch pending shops
+      const { data: shops, error } = await supabase
+        .from('shops')
+        .select(`
+          *,
+          profiles:owner_id (
+            full_name,
+            email,
+            phone
+          )
+        `)
+        .eq('approved', false)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setStats({
+        shops: shopsCount || 0,
+        customers: customersCount || 0,
+        feedbacks: 0,
+      });
+      setPendingShops(shops || []);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (shopId: string) => {
+    try {
+      const { error } = await supabase
+        .from('shops')
+        .update({ approved: true, is_active: true })
+        .eq('id', shopId);
+
+      if (error) throw error;
+      toast.success('Shop approved successfully');
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error approving shop:', error);
+      toast.error('Failed to approve shop');
+    }
+  };
+
+  const handleReject = async (shopId: string) => {
+    if (!confirm('Are you sure you want to reject this shop application?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('shops')
+        .delete()
+        .eq('id', shopId);
+
+      if (error) throw error;
+      toast.success('Shop application rejected');
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error rejecting shop:', error);
+      toast.error('Failed to reject shop');
+    }
+  };
+
+  const statsData = [
+    { title: "Total Shops", value: stats.shops.toString(), icon: Store, color: "text-primary" },
+    { title: "Active Customers", value: stats.customers.toString(), icon: Users, color: "text-accent" },
+    { title: "Feedback Received", value: stats.feedbacks.toString(), icon: MessageSquare, color: "text-blue-600 dark:text-blue-400" },
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -49,7 +146,7 @@ const AdminDashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {stats.map((stat) => (
+          {statsData.map((stat) => (
             <Card
               key={stat.title}
               className="p-6 border-0 shadow-[var(--shadow-soft)]"
@@ -74,77 +171,60 @@ const AdminDashboard = () => {
             <Badge variant="secondary">{pendingShops.length} pending</Badge>
           </div>
 
-          <div className="space-y-4">
-            {pendingShops.map((shop) => (
-              <div
-                key={shop.id}
-                className="p-4 rounded-lg border bg-card flex flex-col md:flex-row md:items-center gap-4"
-              >
-                <div className="flex-1 space-y-2">
-                  <div>
-                    <h3 className="font-semibold text-lg">{shop.shopName}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Owner: {shop.ownerName}
-                    </p>
+          {pendingShops.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">No pending approvals</p>
+          ) : (
+            <div className="space-y-4">
+              {pendingShops.map((shop) => (
+                <div
+                  key={shop.id}
+                  className="p-4 rounded-lg border bg-card flex flex-col md:flex-row md:items-center gap-4"
+                >
+                  <div className="flex-1 space-y-2">
+                    <div>
+                      <h3 className="font-semibold text-lg">{shop.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Owner: {shop.profiles?.full_name || 'N/A'}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-4 text-sm">
+                      {shop.profiles?.phone && (
+                        <span className="text-muted-foreground">
+                          📱 {shop.profiles.phone}
+                        </span>
+                      )}
+                      {shop.profiles?.email && (
+                        <span className="text-muted-foreground">
+                          ✉️ {shop.profiles.email}
+                        </span>
+                      )}
+                    </div>
+                    {shop.description && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {shop.description}
+                      </p>
+                    )}
                   </div>
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <span className="text-muted-foreground">
-                      📱 {shop.mobile}
-                    </span>
-                    <span className="text-muted-foreground">
-                      ✉️ {shop.email}
-                    </span>
+
+                  <div className="flex gap-2 shrink-0">
+                    <Button size="sm" className="gap-2" onClick={() => handleApprove(shop.id)}>
+                      <CheckCircle className="h-4 w-4" />
+                      Approve
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="gap-2 text-destructive"
+                      onClick={() => handleReject(shop.id)}
+                    >
+                      <XCircle className="h-4 w-4" />
+                      Reject
+                    </Button>
                   </div>
                 </div>
-
-                <div className="flex gap-2 shrink-0">
-                  <Button size="sm" className="gap-2">
-                    <CheckCircle className="h-4 w-4" />
-                    Approve
-                  </Button>
-                  <Button size="sm" variant="outline" className="gap-2 text-destructive">
-                    <XCircle className="h-4 w-4" />
-                    Reject
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Recent Feedback */}
-        <Card className="p-6 border-0 shadow-[var(--shadow-soft)]">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Recent Feedback</h2>
-            <Button variant="ghost" size="sm">
-              View All
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="p-4 rounded-lg border bg-card">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h4 className="font-semibold">Customer #{i}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Regarding: Fashion Store {i}
-                    </p>
-                  </div>
-                  <Badge variant="outline">New</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Great experience shopping from this platform. The products are
-                  high quality and delivery was fast.
-                </p>
-                <div className="flex gap-2 mt-4">
-                  <Button size="sm" variant="outline">
-                    Mark as Reviewed
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </Card>
       </div>
     </div>

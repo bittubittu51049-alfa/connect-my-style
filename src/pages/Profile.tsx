@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,29 +10,48 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, MapPin, Settings, Moon, Sun, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "next-themes";
+import { useProfile, useAddresses } from "@/integrations/supabase";
+import { toast } from "sonner";
 
 const Profile = () => {
   const { theme, setTheme } = useTheme();
-  const [userData, setUserData] = useState({
-    name: "Rahul Sharma",
-    email: "rahul.sharma@example.com",
-    phone: "+91 98765 43210",
-  });
+  const { profile, loading: profileLoading, updateProfile } = useProfile();
+  const { addresses, loading: addressesLoading, deleteAddress } = useAddresses();
 
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      type: "Home",
-      address: "123, MG Road, Bangalore, Karnataka - 560001",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: "Work",
-      address: "456, Tech Park, Whitefield, Bangalore - 560066",
-      isDefault: false,
-    },
-  ]);
+  const handleSaveProfile = async () => {
+    if (!profile) return;
+
+    const { error } = await updateProfile({
+      full_name: profile.full_name,
+      phone: profile.phone,
+    });
+
+    if (error) {
+      toast.error("Failed to update profile");
+    } else {
+      toast.success("Profile updated successfully");
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    const { error } = await deleteAddress(id);
+    if (error) {
+      toast.error("Failed to delete address");
+    } else {
+      toast.success("Address deleted successfully");
+    }
+  };
+
+  if (profileLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,10 +95,8 @@ const Profile = () => {
                   <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
-                    value={userData.name}
-                    onChange={(e) =>
-                      setUserData({ ...userData, name: e.target.value })
-                    }
+                    value={profile?.full_name || ""}
+                    onChange={(e) => updateProfile({ full_name: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -87,24 +104,20 @@ const Profile = () => {
                   <Input
                     id="email"
                     type="email"
-                    value={userData.email}
-                    onChange={(e) =>
-                      setUserData({ ...userData, email: e.target.value })
-                    }
+                    value={profile?.email || ""}
+                    disabled
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
                     id="phone"
-                    value={userData.phone}
-                    onChange={(e) =>
-                      setUserData({ ...userData, phone: e.target.value })
-                    }
+                    value={profile?.phone || ""}
+                    onChange={(e) => updateProfile({ phone: e.target.value })}
                   />
                 </div>
                 <Separator className="my-6" />
-                <Button>Save Changes</Button>
+                <Button onClick={handleSaveProfile}>Save Changes</Button>
               </div>
             </Card>
           </TabsContent>
@@ -112,33 +125,52 @@ const Profile = () => {
           {/* Addresses Tab */}
           <TabsContent value="addresses">
             <div className="space-y-4">
-              {addresses.map((address) => (
-                <Card key={address.id} className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold">{address.type}</h3>
-                        {address.isDefault && (
-                          <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                            Default
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {address.address}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="destructive" size="sm">
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
+              {addressesLoading ? (
+                <Card className="p-6">
+                  <p className="text-center text-muted-foreground">Loading addresses...</p>
                 </Card>
-              ))}
+              ) : addresses.length === 0 ? (
+                <Card className="p-6">
+                  <p className="text-center text-muted-foreground">No addresses saved yet.</p>
+                </Card>
+              ) : (
+                addresses.map((address) => (
+                  <Card key={address.id} className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold">{address.full_name}</h3>
+                          {address.is_default && (
+                            <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {address.address_line1}
+                          {address.address_line2 && `, ${address.address_line2}`}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {address.city}, {address.state} - {address.postal_code}
+                        </p>
+                        <p className="text-sm text-muted-foreground">📱 {address.phone}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleDeleteAddress(address.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              )}
               <Button variant="outline" className="w-full">
                 + Add New Address
               </Button>

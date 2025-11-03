@@ -59,6 +59,7 @@ create table public.shops (
   phone text,
   email text,
   is_active boolean default true,
+  approved boolean default false,
   rating numeric default 0 check (rating >= 0 and rating <= 5),
   total_reviews integer default 0,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -270,9 +271,9 @@ create policy "Users can view their own role"
   using (auth.uid() = user_id);
 
 -- RLS Policies for shops
-create policy "Everyone can view active shops"
+create policy "Everyone can view approved and active shops"
   on public.shops for select
-  using (is_active = true or owner_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+  using ((is_active = true and approved = true) or owner_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
 
 create policy "Shop owners can create shops"
   on public.shops for insert

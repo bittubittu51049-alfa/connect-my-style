@@ -1,21 +1,94 @@
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const mockProducts = Array.from({ length: 8 }, (_, i) => ({
-  id: i + 1,
-  name: `Fashion Item ${i + 1}`,
-  image: "/placeholder.svg",
-  price: Math.floor(Math.random() * 5000) + 2000,
-  originalPrice: Math.floor(Math.random() * 7000) + 4000,
-  stock: Math.floor(Math.random() * 100) + 10,
-  category: i % 2 === 0 ? "Men" : "Women",
-}));
+import { useShop, supabase } from "@/integrations/supabase";
+import { toast } from "sonner";
+import type { Product } from "@/integrations/supabase/hooks/useProducts";
 
 const ShopProducts = () => {
+  const { shop, loading: shopLoading } = useShop();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (shop?.id) {
+      fetchProducts();
+    }
+  }, [shop]);
+
+  const fetchProducts = async () => {
+    if (!shop?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('shop_id', shop.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Product deleted successfully');
+      fetchProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Failed to delete product');
+    }
+  };
+
+  if (shopLoading || loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!shop?.approved) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Card className="p-12">
+            <div className="text-center">
+              <p className="text-muted-foreground">
+                Your shop is pending approval. You'll be able to add products once approved.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -42,49 +115,70 @@ const ShopProducts = () => {
           </Button>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {mockProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden border-0 shadow-[var(--shadow-soft)]">
-              <div className="aspect-square bg-muted relative">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-                <Badge className="absolute top-2 right-2">{product.category}</Badge>
-              </div>
+        {products.length === 0 ? (
+          <Card className="p-12">
+            <div className="text-center">
+              <p className="text-muted-foreground mb-4">No products yet</p>
+              <Button asChild>
+                <Link to="/shop/products/new">Add Your First Product</Link>
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <Card key={product.id} className="overflow-hidden border-0 shadow-[var(--shadow-soft)]">
+                <div className="aspect-square bg-muted relative">
+                  <img
+                    src={product.image_url || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <Badge className="absolute top-2 right-2">{product.category}</Badge>
+                  {!product.is_active && (
+                    <Badge className="absolute top-2 left-2 bg-red-500">Inactive</Badge>
+                  )}
+                </div>
 
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-semibold mb-1">{product.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-primary">
-                      ₹{product.price.toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-sm text-muted-foreground line-through">
-                      ₹{product.originalPrice.toLocaleString('en-IN')}
-                    </span>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-semibold mb-1 line-clamp-1">{product.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-primary">
+                        ₹{product.price.toLocaleString('en-IN')}
+                      </span>
+                      {product.compare_at_price && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          ₹{product.compare_at_price.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Stock: {product.stock_quantity} units
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Stock: {product.stock} units
-                  </p>
-                </div>
 
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1" asChild>
-                    <Link to={`/shop/products/${product.id}/edit`}>
-                      <Edit className="h-4 w-4 mr-1" />
-                      Edit
-                    </Link>
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                      <Link to={`/shop/products/${product.id}/edit`}>
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-destructive"
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

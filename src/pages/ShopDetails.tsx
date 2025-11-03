@@ -1,23 +1,74 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, MapPin, Phone, Mail, ArrowLeft } from "lucide-react";
-
-const mockProducts = Array.from({ length: 12 }, (_, i) => ({
-  id: i + 1,
-  name: `Fashion Item ${i + 1}`,
-  image: "/placeholder.svg",
-  price: Math.floor(Math.random() * 5000) + 2000,
-  originalPrice: Math.floor(Math.random() * 7000) + 4000,
-  shop: "Fashion Store",
-  shopId: 1,
-  discount: Math.floor(Math.random() * 50) + 10,
-}));
+import { supabase, useProducts } from "@/integrations/supabase";
+import type { Shop } from "@/integrations/supabase/hooks/useShop";
 
 const ShopDetails = () => {
   const { id } = useParams();
+  const [shop, setShop] = useState<Shop | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { products, loading: productsLoading } = useProducts(id);
+
+  useEffect(() => {
+    if (id) {
+      fetchShop();
+    }
+  }, [id]);
+
+  const fetchShop = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('shops')
+        .select('*')
+        .eq('id', id)
+        .eq('approved', true)
+        .single();
+
+      if (error) throw error;
+      setShop(data);
+    } catch (error) {
+      console.error('Error fetching shop:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || productsLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Loading shop...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!shop) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <Card className="p-12">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Shop Not Found</h2>
+              <Button asChild>
+                <Link to="/shops">Browse Shops</Link>
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,48 +85,56 @@ const ShopDetails = () => {
           <div className="flex flex-col md:flex-row gap-6 items-start">
             <div className="h-32 w-32 rounded-lg overflow-hidden bg-muted shrink-0">
               <img
-                src="/placeholder.svg"
-                alt="Shop Logo"
+                src={shop.logo_url || "/placeholder.svg"}
+                alt={shop.name}
                 className="h-full w-full object-cover"
               />
             </div>
 
             <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2">Fashion Store {id}</h1>
+              <h1 className="text-3xl font-bold mb-2">{shop.name}</h1>
               <div className="flex items-center gap-4 mb-4 flex-wrap">
                 <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`h-4 w-4 ${
+                        i < Math.round(shop.rating) 
+                          ? "fill-primary text-primary" 
+                          : "text-muted-foreground"
+                      }`} 
+                    />
                   ))}
-                  <span className="ml-2 font-semibold">4.8</span>
+                  <span className="ml-2 font-semibold">{shop.rating.toFixed(1)}</span>
                 </div>
                 <span className="text-muted-foreground">•</span>
-                <span className="text-muted-foreground">15.2K Followers</span>
-                <span className="text-muted-foreground">•</span>
-                <span className="text-muted-foreground">240 Products</span>
+                <span className="text-muted-foreground">{products.length} Products</span>
               </div>
 
-              <p className="text-muted-foreground mb-4">
-                Premium fashion collection featuring the latest trends and timeless classics.
-                Discover unique styles that define your personality.
-              </p>
+              {shop.description && (
+                <p className="text-muted-foreground mb-4">{shop.description}</p>
+              )}
 
               <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  <span>Mumbai, Maharashtra, India</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-primary" />
-                  <span>+91 98765 43210</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-primary" />
-                  <span>contact@fashionstore{id}.com</span>
-                </div>
+                {shop.address && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span>{shop.address}</span>
+                  </div>
+                )}
+                {shop.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-primary" />
+                    <span>{shop.phone}</span>
+                  </div>
+                )}
+                {shop.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-primary" />
+                    <span>{shop.email}</span>
+                  </div>
+                )}
               </div>
-
-              <Button className="mt-6">Follow Shop</Button>
             </div>
           </div>
         </Card>
@@ -84,11 +143,26 @@ const ShopDetails = () => {
           <h2 className="text-2xl font-bold">Products from this Shop</h2>
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {mockProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <Card className="p-12">
+            <p className="text-center text-muted-foreground">No products available yet</p>
+          </Card>
+        ) : (
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                id={product.id}
+                name={product.name}
+                image={product.image_url || "/placeholder.svg"}
+                price={product.price}
+                originalPrice={product.compare_at_price || undefined}
+                shop={shop.name}
+                discount={product.compare_at_price ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100) : undefined}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
