@@ -50,10 +50,19 @@ export const useAuth = () => {
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
     
-    if (!error && data) {
+    if (error) {
+      console.error('Error fetching user role:', error);
+      setUserRole('customer'); // Default to customer if error
+      return;
+    }
+    
+    if (data) {
       setUserRole(data.role as AppRole);
+    } else {
+      // No role found, default to customer
+      setUserRole('customer');
     }
   };
 

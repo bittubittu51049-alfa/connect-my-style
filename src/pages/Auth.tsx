@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/integrations/supabase";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import type { AppRole } from "@/integrations/supabase";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, userRole, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
 
   // Login states
@@ -26,11 +26,18 @@ const Auth = () => {
   const [signupFullName, setSignupFullName] = useState("");
   const [signupRole, setSignupRole] = useState<AppRole>("customer");
 
-  // Redirect if already logged in
-  if (user) {
-    navigate("/");
-    return null;
-  }
+  // Redirect if already logged in based on role
+  useEffect(() => {
+    if (user && !authLoading && userRole) {
+      if (userRole === 'shop_owner') {
+        navigate('/shop/dashboard');
+      } else if (userRole === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, userRole, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,12 +47,11 @@ const Auth = () => {
 
     if (error) {
       toast.error(error.message);
+      setLoading(false);
     } else {
       toast.success("Logged in successfully!");
-      navigate("/");
+      // Note: redirect is handled by useEffect above based on userRole
     }
-
-    setLoading(false);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
