@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart, Search, Menu, X, Home, Store, Package, User, LogOut } from "lucide-react";
+import { ShoppingCart, Search, Menu, X, Home, Store, Package, User, LogOut, Shield, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -60,62 +60,88 @@ export const Navbar = () => {
               </div>
             )}
 
-            {/* Desktop Navigation - Only for Customer */}
-            {isCustomerRole && (
-              <div className="hidden md:flex items-center gap-6">
-                <Link to="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                  <Home className="h-5 w-5" />
-                </Link>
-                <Link to="/shops" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                  <Store className="h-5 w-5" />
-                </Link>
-                <Link to="/orders" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                  <Package className="h-5 w-5" />
-                </Link>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link to="/cart">
-                    <ShoppingCart className="h-5 w-5" />
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-6">
+              {/* Customer Navigation */}
+              {isCustomerRole && (
+                <>
+                  <Link to="/" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                    <Home className="h-5 w-5" />
                   </Link>
-                </Button>
+                  <Link to="/shops" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                    <Store className="h-5 w-5" />
+                  </Link>
+                  <Link to="/orders" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                    <Package className="h-5 w-5" />
+                  </Link>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link to="/cart">
+                      <ShoppingCart className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </>
+              )}
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <User className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
+              {/* Role Switcher Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5 text-sm font-semibold">
+                    Current: {userRole === 'shop_owner' ? 'Shop Owner' : userRole === 'admin' ? 'Admin' : 'Customer'}
+                  </div>
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+                  
+                  {/* Role Navigation */}
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                    Switch View
+                  </div>
+                  
+                  <DropdownMenuItem asChild>
+                    <Link to="/" className="cursor-pointer">
+                      <Home className="mr-2 h-4 w-4" />
+                      Customer View
+                    </Link>
+                  </DropdownMenuItem>
+
+                  {userRole === "shop_owner" && (
                     <DropdownMenuItem asChild>
-                      <Link to="/profile" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
+                      <Link to="/shop/dashboard" className="cursor-pointer">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Shop Dashboard
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    {userRole === "shop_owner" && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/shop/dashboard" className="cursor-pointer">
-                          <Store className="mr-2 h-4 w-4" />
-                          Shop Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    {userRole === "admin" && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/dashboard" className="cursor-pointer">
-                          Admin Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
+                  )}
+                  
+                  {userRole === "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/dashboard" className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
+                  )}
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
         </div>

@@ -27,23 +27,37 @@ const Shops = () => {
 
   const fetchShops = async () => {
     try {
-      const { data, error } = await supabase
+      // Only fetch approved and active shops
+      const { data: shopsData, error: shopsError } = await supabase
         .from('shops')
-        .select('*');
+        .select('*')
+        .eq('is_active', true)
+        .eq('approved', true);
 
-      if (error) throw error;
+      if (shopsError) throw shopsError;
 
-      const formattedShops: Shop[] = (data || []).map((shop: any) => ({
-        id: shop.id,
-        name: shop.name,
-        logo: shop.logo_url || "/placeholder.svg",
-        rating: shop.rating || 0,
-        followers: 0, // We'll need to add a followers table later
-        products: 0, // We'll count products separately if needed
-        description: shop.description || "",
-      }));
+      // Fetch product counts for each shop
+      const shopsWithCounts = await Promise.all(
+        (shopsData || []).map(async (shop: any) => {
+          const { count } = await supabase
+            .from('products')
+            .select('*', { count: 'exact', head: true })
+            .eq('shop_id', shop.id)
+            .eq('is_active', true);
 
-      setShops(formattedShops);
+          return {
+            id: shop.id,
+            name: shop.name,
+            logo: shop.logo_url || "/placeholder.svg",
+            rating: shop.rating || 0,
+            followers: shop.total_reviews || 0,
+            products: count || 0,
+            description: shop.description || "No description available",
+          };
+        })
+      );
+
+      setShops(shopsWithCounts);
     } catch (error) {
       console.error("Error fetching shops:", error);
     } finally {

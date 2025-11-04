@@ -3,9 +3,10 @@ import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Store, Users, MessageSquare, CheckCircle, XCircle } from "lucide-react";
+import { Store, Users, MessageSquare, CheckCircle, XCircle, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface PendingShop {
   id: string;
@@ -225,6 +226,19 @@ const AdminDashboard = () => {
               ))}
             </div>
           )}
+        </Card>
+
+        {/* Role Switcher */}
+        <Card className="p-6 border-0 shadow-[var(--shadow-soft)]">
+          <h2 className="text-xl font-bold mb-4">Switch Views</h2>
+          <div className="flex gap-4">
+            <Button asChild variant="outline" className="h-auto py-4 flex-1">
+              <Link to="/">
+                <Home className="mr-2 h-5 w-5" />
+                Customer View
+              </Link>
+            </Button>
+          </div>
         </Card>
       </div>
     </div>

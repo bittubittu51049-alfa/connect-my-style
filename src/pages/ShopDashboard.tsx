@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, ShoppingBag, TrendingUp, DollarSign, AlertCircle } from "lucide-react";
+import { Package, ShoppingBag, TrendingUp, DollarSign, AlertCircle, Home, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useShop, useAuth } from "@/integrations/supabase";
 import { supabase } from "@/integrations/supabase/client";
@@ -205,6 +205,29 @@ const ShopDashboard = () => {
             </Button>
           </div>
         </Card>
+
+        {/* Role Switcher */}
+        {userRole && (
+          <Card className="p-6 border-0 shadow-[var(--shadow-soft)]">
+            <h2 className="text-xl font-bold mb-4">Switch Views</h2>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Button asChild variant="outline" className="h-auto py-4">
+                <Link to="/">
+                  <Home className="mr-2 h-5 w-5" />
+                  Customer View
+                </Link>
+              </Button>
+              {userRole === 'admin' && (
+                <Button asChild variant="outline" className="h-auto py-4">
+                  <Link to="/admin/dashboard">
+                    <Shield className="mr-2 h-5 w-5" />
+                    Admin Dashboard
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );
