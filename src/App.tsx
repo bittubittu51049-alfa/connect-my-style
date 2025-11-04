@@ -17,6 +17,7 @@ import ShopProducts from "./pages/ShopProducts";
 import ShopProductNew from "./pages/ShopProductNew";
 import ShopProductEdit from "./pages/ShopProductEdit";
 import ShopRevenue from "./pages/ShopRevenue";
+import ShopSetup from "./pages/ShopSetup";
 import AdminDashboard from "./pages/AdminDashboard";
 import CheckoutAddress from "./pages/CheckoutAddress";
 import CheckoutSummary from "./pages/CheckoutSummary";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/shops" element={<ProtectedRoute><Shops /></ProtectedRoute>} />
           <Route path="/shop/:id" element={<ProtectedRoute><ShopDetails /></ProtectedRoute>} />
+          <Route path="/shop/setup" element={<ProtectedRoute requireRole="shop_owner"><ShopSetup /></ProtectedRoute>} />
           <Route path="/shop/dashboard" element={<ProtectedRoute requireRole="shop_owner"><ShopDashboard /></ProtectedRoute>} />
           <Route path="/shop/orders" element={<ProtectedRoute requireRole="shop_owner"><ShopOrders /></ProtectedRoute>} />
           <Route path="/shop/products" element={<ProtectedRoute requireRole="shop_owner"><ShopProducts /></ProtectedRoute>} />

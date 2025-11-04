@@ -26,6 +26,36 @@ export interface Product {
   };
 }
 
+export const createProduct = async (productData: Omit<Product, 'id' | 'created_at' | 'updated_at' | 'shops' | 'rating' | 'total_reviews'>) => {
+  const { data, error } = await supabase
+    .from('products')
+    .insert([productData])
+    .select()
+    .single();
+  
+  return { data, error };
+};
+
+export const updateProduct = async (id: string, updates: Partial<Product>) => {
+  const { data, error } = await supabase
+    .from('products')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  
+  return { data, error };
+};
+
+export const deleteProduct = async (id: string) => {
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
+  
+  return { error };
+};
+
 export const useProducts = (shopId?: string) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

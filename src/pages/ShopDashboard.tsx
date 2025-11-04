@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Package, ShoppingBag, TrendingUp, DollarSign, AlertCircle } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useShop } from "@/integrations/supabase";
+import { Link, useNavigate } from "react-router-dom";
+import { useShop, useAuth } from "@/integrations/supabase";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useEffect } from "react";
 
 const ShopDashboard = () => {
+  const navigate = useNavigate();
   const { shop, loading } = useShop();
+  const { userRole } = useAuth();
   const [stats, setStats] = useState({
     products: 0,
     orders: 0,
@@ -17,6 +20,13 @@ const ShopDashboard = () => {
     revenue: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
+
+  // Redirect to shop setup if no shop exists
+  useEffect(() => {
+    if (!loading && userRole === 'shop_owner' && !shop) {
+      navigate('/shop/setup');
+    }
+  }, [shop, loading, userRole, navigate]);
 
   useEffect(() => {
     if (shop?.id) {
