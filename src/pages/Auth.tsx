@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Store } from "lucide-react";
+import { Store, Facebook, Chrome } from "lucide-react";
 import { toast } from "sonner";
 import type { AppRole } from "@/integrations/supabase";
 
@@ -144,6 +144,36 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Logging in..." : "Login"}
                   </Button>
+                  
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-10 w-10 transition-all hover:scale-110 hover:border-primary hover:text-primary"
+                      onClick={() => toast.info("Google login coming soon!")}
+                    >
+                      <Chrome className="h-5 w-5" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-10 w-10 transition-all hover:scale-110 hover:border-[#1877F2] hover:text-[#1877F2]"
+                      onClick={() => toast.info("Facebook login coming soon!")}
+                    >
+                      <Facebook className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -213,6 +243,36 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Creating account..." : "Sign Up"}
                   </Button>
+                  
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 justify-center">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-10 w-10 transition-all hover:scale-110 hover:border-primary hover:text-primary"
+                      onClick={() => toast.info("Google login coming soon!")}
+                    >
+                      <Chrome className="h-5 w-5" />
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-10 w-10 transition-all hover:scale-110 hover:border-[#1877F2] hover:text-[#1877F2]"
+                      onClick={() => toast.info("Facebook login coming soon!")}
+                    >
+                      <Facebook className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>

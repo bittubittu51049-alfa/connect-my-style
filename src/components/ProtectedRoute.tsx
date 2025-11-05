@@ -24,13 +24,13 @@ export const ProtectedRoute = ({ children, requireRole }: ProtectedRouteProps) =
     return <Navigate to="/auth" replace />;
   }
 
-  // Admin can access everything
-  if (userRole === 'admin') {
-    return <>{children}</>;
-  }
-
   // Check role-specific access
   if (requireRole && userRole !== requireRole) {
+    // Admin can access everything
+    if (userRole === 'admin') {
+      return <>{children}</>;
+    }
+    
     // Redirect based on actual user role
     if (userRole === 'shop_owner') {
       return <Navigate to="/shop/dashboard" replace />;
