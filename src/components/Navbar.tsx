@@ -104,34 +104,38 @@ export const Navbar = () => {
 
                   <DropdownMenuSeparator />
                   
-                  {/* Role Navigation */}
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                    Switch View
-                  </div>
-                  
-                  <DropdownMenuItem asChild>
-                    <Link to="/" className="cursor-pointer">
-                      <Home className="mr-2 h-4 w-4" />
-                      Customer View
-                    </Link>
-                  </DropdownMenuItem>
+                  {/* Role Navigation - Only show if user has multiple roles */}
+                  {(userRole === 'shop_owner' || userRole === 'admin') && (
+                    <>
+                      <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                        Switch View
+                      </div>
+                      
+                      <DropdownMenuItem asChild>
+                        <Link to="/" className="cursor-pointer">
+                          <Home className="mr-2 h-4 w-4" />
+                          Customer View
+                        </Link>
+                      </DropdownMenuItem>
 
-                  {userRole === "shop_owner" && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/shop/dashboard" className="cursor-pointer">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Shop Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
-                  
-                  {userRole === "admin" && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/dashboard" className="cursor-pointer">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Admin Dashboard
-                      </Link>
-                    </DropdownMenuItem>
+                      {userRole === "shop_owner" && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/shop/dashboard" className="cursor-pointer">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            Shop Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      
+                      {userRole === "admin" && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/dashboard" className="cursor-pointer">
+                            <Shield className="mr-2 h-4 w-4" />
+                            Admin Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                    </>
                   )}
 
                   <DropdownMenuSeparator />

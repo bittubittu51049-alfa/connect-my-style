@@ -24,7 +24,7 @@ export const ProtectedRoute = ({ children, requireRole }: ProtectedRouteProps) =
     return <Navigate to="/auth" replace />;
   }
 
-  if (requireRole && userRole !== requireRole) {
+  if (requireRole && userRole !== requireRole && userRole !== 'admin') {
     return <Navigate to="/" replace />;
   }
 

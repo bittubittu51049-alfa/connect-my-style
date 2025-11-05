@@ -19,6 +19,7 @@ const Auth = () => {
   // Login states
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [loginRole, setLoginRole] = useState<AppRole>("customer");
 
   // Signup states
   const [signupEmail, setSignupEmail] = useState("");
@@ -50,7 +51,7 @@ const Auth = () => {
       setLoading(false);
     } else {
       toast.success("Logged in successfully!");
-      // Note: redirect is handled by useEffect above based on userRole
+      // The redirect will happen in useEffect after role is fetched
     }
   };
 
@@ -98,6 +99,23 @@ const Auth = () => {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-3">
+                    <Label>I want to:</Label>
+                    <RadioGroup value={loginRole} onValueChange={(value) => setLoginRole(value as AppRole)}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="customer" id="login-customer" />
+                        <Label htmlFor="login-customer" className="font-normal cursor-pointer">
+                          Shop for products (Customer)
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="shop_owner" id="login-shop-owner" />
+                        <Label htmlFor="login-shop-owner" className="font-normal cursor-pointer">
+                          Sell products (Shop Owner)
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
                     <Input
