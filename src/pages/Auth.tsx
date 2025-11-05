@@ -30,12 +30,15 @@ const Auth = () => {
   // Redirect if already logged in based on role
   useEffect(() => {
     if (user && !authLoading && userRole) {
-      if (userRole === 'shop_owner') {
-        navigate('/shop/dashboard');
-      } else if (userRole === 'admin') {
-        navigate('/admin/dashboard');
+      console.log('Auth redirect - userRole:', userRole);
+      
+      // Redirect based on user role
+      if (userRole === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (userRole === 'shop_owner') {
+        navigate('/shop/dashboard', { replace: true });
       } else {
-        navigate('/');
+        navigate('/', { replace: true });
       }
     }
   }, [user, userRole, authLoading, navigate]);

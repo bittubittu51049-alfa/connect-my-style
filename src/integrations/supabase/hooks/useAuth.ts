@@ -11,58 +11,76 @@ export const useAuth = () => {
   const [userRole, setUserRole] = useState<AppRole | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Check for existing session first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchUserRole(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           // Fetch user role after state update
           setTimeout(() => {
-            fetchUserRole(session.user.id);
+            if (mounted) {
+              fetchUserRole(session.user.id);
+            }
           }, 0);
         } else {
           setUserRole(null);
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        fetchUserRole(session.user.id);
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    if (error) {
-      console.error('Error fetching user role:', error);
-      setUserRole('customer'); // Default to customer if error
-      return;
-    }
-    
-    if (data) {
-      setUserRole(data.role as AppRole);
-    } else {
-      // No role found, default to customer
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole('customer'); // Default to customer if error
+        setLoading(false);
+        return;
+      }
+      
+      if (data) {
+        setUserRole(data.role as AppRole);
+      } else {
+        // No role found, default to customer
+        setUserRole('customer');
+      }
+    } catch (error) {
+      console.error('Error in fetchUserRole:', error);
       setUserRole('customer');
+    } finally {
+      setLoading(false);
     }
   };
 

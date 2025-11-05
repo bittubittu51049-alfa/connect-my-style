@@ -111,7 +111,7 @@ const ShopDashboard = () => {
           <Alert className="mb-8">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Your shop is pending approval from the admin. You'll be notified once approved.
+              Your shop registration request has been sent to the admin. You'll be able to add and sell products once your shop is approved.
             </AlertDescription>
           </Alert>
           
@@ -122,9 +122,26 @@ const ShopDashboard = () => {
               <p className="text-muted-foreground mb-2">
                 Thank you for registering your shop "{shop.name}"!
               </p>
-              <p className="text-muted-foreground">
-                Our admin team is reviewing your application. You'll receive a notification once approved.
+              <p className="text-muted-foreground mb-6">
+                Our admin team is reviewing your application. Once approved, you'll be able to:
               </p>
+              <ul className="text-left max-w-md mx-auto space-y-2 text-muted-foreground mb-6">
+                <li>• Add and manage products</li>
+                <li>• Sell your products to customers</li>
+                <li>• Track orders and revenue</li>
+                <li>• Manage your shop details</li>
+              </ul>
+              <p className="text-sm text-muted-foreground">
+                Please wait for admin approval to access the full dashboard features.
+              </p>
+              <div className="mt-6">
+                <Button asChild variant="outline">
+                  <Link to="/">
+                    <Home className="mr-2 h-4 w-4" />
+                    Browse as Customer
+                  </Link>
+                </Button>
+              </div>
             </div>
           </Card>
         </div>
