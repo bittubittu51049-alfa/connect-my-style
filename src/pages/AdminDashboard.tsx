@@ -41,36 +41,48 @@ const AdminDashboard = () => {
       // Fetch stats
       const { count: shopsCount } = await supabase
         .from('shops')
-        .select('*', { count: 'exact', head: true })
-        .eq('approved', true);
+        .select('*', { count: 'exact', head: true });
 
       const { count: customersCount } = await supabase
         .from('user_roles')
         .select('*', { count: 'exact', head: true })
         .eq('role', 'customer');
 
-      // Fetch pending shops
-      const { data: shops, error } = await supabase
+      // Fetch all shops (since approved field might not exist yet)
+      const { data: shops, error: shopsError } = await supabase
         .from('shops')
-        .select(`
-          *,
-          profiles!owner_id (
-            full_name,
-            email,
-            phone
-          )
-        `)
-        .eq('approved', false)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (shopsError) throw shopsError;
+
+      // Fetch profiles for shop owners
+      const ownerIds = shops?.map(shop => shop.owner_id) || [];
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, phone')
+        .in('id', ownerIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Merge shops with their owner profiles
+      const shopsWithProfiles = shops?.map(shop => ({
+        ...shop,
+        profiles: profiles?.find(p => p.id === shop.owner_id) || {
+          full_name: 'N/A',
+          email: shop.email || 'N/A',
+          phone: shop.phone || null
+        }
+      })) || [];
 
       setStats({
         shops: shopsCount || 0,
         customers: customersCount || 0,
         feedbacks: 0,
       });
-      setPendingShops(shops || []);
+      setPendingShops(shopsWithProfiles);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error('Failed to load dashboard data');
