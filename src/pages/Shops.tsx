@@ -27,12 +27,11 @@ const Shops = () => {
 
   const fetchShops = async () => {
     try {
-      // Only fetch approved and active shops
+      // Only fetch active shops
       const { data: shopsData, error: shopsError } = await supabase
         .from('shops')
         .select('*')
-        .eq('is_active', true)
-        .eq('approved', true);
+        .eq('is_active', true);
 
       if (shopsError) throw shopsError;
 

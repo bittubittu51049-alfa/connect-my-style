@@ -103,7 +103,7 @@ const ShopDashboard = () => {
     );
   }
 
-  if (!shop.approved) {
+  if (!shop.is_active) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />

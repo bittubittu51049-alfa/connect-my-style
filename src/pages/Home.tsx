@@ -58,12 +58,14 @@ const Home = () => {
           price,
           discount,
           image_url,
-          shops (
+          shops!inner (
             id,
-            name
+            name,
+            is_active
           )
         `)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('shops.is_active', true);
 
       if (error) throw error;
 
